@@ -34,8 +34,13 @@ describe('Uniswap Contract', async () => {
       uniswapV2Factory.target,
       weth.target
     );
+    const GetInit = await ethers.getContractFactory('CalHash');
+    getInit = await GetInit.deploy();
+
+    initHash = await getInit.connect(signer[0]).getInitHash();
+    console.log(initHash);
   });
-  it('  ***Check The ethers Version & Contract address *** \n  ', async () => {
+  it('  *** Check The ethers Version & Contract address *** \n  ', async () => {
     const version = ethers.version;
     console.log(`
     Ethers Version : v${version}
@@ -91,7 +96,7 @@ describe('Uniswap Contract', async () => {
         signer[0].address,
         1695971128
       );
-    // address tokenA,
+    //     address tokenA,
     //     address tokenB,
     //     uint amountADesired,
     //     uint amountBDesired,
