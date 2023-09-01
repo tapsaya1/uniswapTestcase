@@ -9,6 +9,7 @@ describe('Uniswap Contract', async () => {
   let uniswapV2Router02;
   let TOKEN_A_AMOUNT = ethers.parseEther('10000');
   let TOKEN_B_AMOUNT = ethers.parseEther('10000');
+  const ETH_AMOUNT = ethers.parseEther('10');
   beforeEach(async () => {
     signer = await ethers.getSigners();
     const TokenA = await ethers.getContractFactory('TokenA');
@@ -34,11 +35,13 @@ describe('Uniswap Contract', async () => {
       uniswapV2Factory.target,
       weth.target
     );
+
+    // const UniswapV2ERC20 = await ethers.getContractFactory("")
+    let UniswapV2Pair = await ethers.getContractFactory('UniswapV2Pair');
+    uniswapV2Pair = await UniswapV2Pair.connect(signer[0]).deploy();
     const GetInit = await ethers.getContractFactory('CalHash');
     getInit = await GetInit.deploy();
-
     initHash = await getInit.connect(signer[0]).getInitHash();
-    console.log(initHash);
   });
   it('  *** Check The ethers Version & Contract address *** \n  ', async () => {
     const version = ethers.version;
@@ -78,6 +81,7 @@ describe('Uniswap Contract', async () => {
     );
   });
   it('  *** Check AddLiquidity ***  ', async () => {
+    console.log(`Init Hash : ${initHash}`);
     await tokenA
       .connect(signer[0])
       .approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
@@ -96,13 +100,36 @@ describe('Uniswap Contract', async () => {
         signer[0].address,
         1695971128
       );
-    //     address tokenA,
-    //     address tokenB,
-    //     uint amountADesired,
-    //     uint amountBDesired,
-    //     uint amountAMin,
-    //     uint amountBMin,
-    //     address to,
-    //     uint deadline
+    console.log(`Contract Address of Uniswap Pair: ${uniswapV2Pair.target}`);
+    let pair = await uniswapV2Factory.getPair(tokenA.target, tokenB.target);
+    console.log(`Pair Address : ${pair}`);
+    let uniswapV2PairAt = await uniswapV2Pair.connect(signer[0]).attach(pair);
+    console.log(
+      `Balance Of Attached Uniswap Pair : ${await uniswapV2PairAt.balanceOf(
+        signer[0].address
+      )}`
+    );
+    console.log(
+      `Balance Of Deployed Uniswap pair : ${await uniswapV2Pair.balanceOf(
+        signer[0].address
+      )}`
+    );
+  });
+  it('  *** Check AddLiquidityETH ***  ', async () => {
+    console.log(`Init Hash : ${initHash}`);
+    await tokenA
+      .connect(signer[0])
+      .approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
+    await uniswapV2Router02
+      .connect(signer[0])
+      .addLiquidityETH(
+        tokenA.target,
+        TOKEN_A_AMOUNT,
+        1,
+        ETH_AMOUNT,
+        signer[0].address,
+        1695971128,
+        { value: ETH_AMOUNT }
+      );
   });
 });
