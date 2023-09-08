@@ -94,7 +94,7 @@ describe('Uniswap Contract', async () => {
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await uniswapV2Router02.connect(signer[0]).addLiquidityETH(tokenA.target,TOKEN_A_AMOUNT,1,ETH_AMOUNT,signer[0].address,deadline,{ value: ETH_AMOUNT });
   });
-  it('  *** Check RemoveLiquidity ***  ', async () => {
+  it.only('  *** Check RemoveLiquidity ***  ', async () => {
     // console.log(`Init Hash : ${initHash}`);
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await tokenB.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
@@ -215,7 +215,7 @@ describe('Uniswap Contract', async () => {
     Final Balance of Token B   : ${fnlBalT2}
     `);
   })
-  it.only("swapExactETHForTokens",async ()=>{
+  it("swapExactETHForTokens",async ()=>{
     await _addLiquidityETH();
 
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target,TOKEN_A_AMOUNT);
