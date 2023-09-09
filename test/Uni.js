@@ -13,12 +13,14 @@ describe('Uniswap Contract', async () => {
   let TOKEN_A_AMOUNT = ethers.parseEther('1000');
   let TOKEN_B_AMOUNT = ethers.parseEther('1000');
   const ETH_AMOUNT = ethers.parseEther('10');
+
   async function _addLiquidity(){
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await tokenB.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
     console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    TOKEN_B_AMOUNT : ${TOKEN_B_AMOUNT}`);
     await uniswapV2Router02.connect(signer[0]).addLiquidity(tokenA.target,tokenB.target,TOKEN_A_AMOUNT,TOKEN_B_AMOUNT,1,1,signer[0].address,deadline);
   }
+  
   async function _addLiquidityETH(){
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    ETH_AMOUNT : ${ETH_AMOUNT}`);
