@@ -231,7 +231,7 @@ describe('Uniswap Contract', async () => {
     console.log(`
     Initial Balance of Token A : ${iniBalT1}
     Initial Balance of WETH : ${iniBalWETH}
-    Final Balance of Token A   : ${fnlBalT1}
+    Final Balance of Token A  : ${fnlBalT1}
     Final Balance of WETH   : ${fnlBalWETH}
     `);
   })
