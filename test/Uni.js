@@ -96,7 +96,7 @@ describe('Uniswap Contract', async () => {
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await uniswapV2Router02.connect(signer[0]).addLiquidityETH(tokenA.target,TOKEN_A_AMOUNT,1,ETH_AMOUNT,signer[0].address,deadline,{ value: ETH_AMOUNT });
   });
-  it.only('  *** Check RemoveLiquidity ***  ', async () => {
+  it('  *** Check RemoveLiquidity ***  ', async () => {
     // console.log(`Init Hash : ${initHash}`);
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await tokenB.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
@@ -213,26 +213,26 @@ describe('Uniswap Contract', async () => {
     console.log(`
     Initial Balance of Token A : ${iniBalT1}
     Initial Balance of Token B : ${iniBalT2}
-    Final Balance of Token A   : ${fnlBalT1}
-    Final Balance of Token B   : ${fnlBalT2}
+    Final Balance of Token A  : ${fnlBalT1}
+    Final Balance of Token B  : ${fnlBalT2}
     `);
   })
-  it("swapExactETHForTokens",async ()=>{
+  it.only("swapExactETHForTokens",async ()=>{
     await _addLiquidityETH();
 
+    pair = await uniswapV2Factory.getPair(tokenA.target, weth.target);
+    console.log(`Pair Address Of TokenA/weth via Factory: ${pair}`);
+    let uniswapV2PairAt =await uniswapV2Pair.connect(signer[0]).attach(pair);
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target,TOKEN_A_AMOUNT);
     let iniBalT1 = (parseInt(await tokenA.balanceOf(signer[0].address))/1e18);
-    let iniBalWETH = (parseInt(await weth.balanceOf(signer[0].address))/1e18);
-  
+    console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
     await uniswapV2Router02.connect(signer[0]).swapExactETHForTokens(1,[weth.target,tokenA.target],signer[0].address, deadline,{value:ETH_AMOUNT});
 
     let fnlBalT1 = (parseInt(await tokenA.balanceOf(signer[0].address))/1e18);
-    let fnlBalWETH = (parseInt(await weth.balanceOf(signer[0].address))/1e18);
     console.log(`
     Initial Balance of Token A : ${iniBalT1}
-    Initial Balance of WETH : ${iniBalWETH}
     Final Balance of Token A  : ${fnlBalT1}
-    Final Balance of WETH   : ${fnlBalWETH}
     `);
+    console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
   })
 });
