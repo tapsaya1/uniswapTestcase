@@ -101,7 +101,7 @@ describe('Uniswap Contract', async () => {
     // await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNTA);
     // await tokenB.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNTB);
     // console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNTA} \n    TOKEN_B_AMOUNT : ${TOKEN_B_AMOUNTB}`);
-    // await uniswapV2Router02.connect(signer[0]).addLiquidity(tokenA.target,tokenB.target,TOKEN_A_AMOUNTA,TOKEN_B_AMOUNTB,amountAMin,amountBMin,signer[0].address,deadline);
+    // await uniswapV2Router02.connect(signer[0]).addLiquidity(tokenA.target,tokenB.target,TOKEN_A_AMOUNTA,TOKEN_B_AMOUNTB,1,1,signer[0].address,deadline);
     // console.log(`reserve ${await uniswapV2PairAt.getReserves()}`);
     // console.log(`reserve ${await uniswapV2Pair.getReserves()}`)
   });
@@ -120,7 +120,9 @@ describe('Uniswap Contract', async () => {
   });
   it('  *** Check RemoveLiquidity ***  ', async () => {
     // console.log(`Init Hash : ${initHash}`);
-    await _addLiquidity();
+    await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
+    await tokenB.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
+    await uniswapV2Router02.connect(signer[0]).addLiquidity(tokenA.target,tokenB.target,TOKEN_A_AMOUNT,TOKEN_B_AMOUNT,1,1,signer[0].address,deadline);
 
     console.log(`Contract Address of Uniswap Pair Contract: ${uniswapV2Pair.target}`);
     pair = await uniswapV2Factory.getPair(tokenA.target, tokenB.target);
@@ -130,7 +132,7 @@ describe('Uniswap Contract', async () => {
     let liquidity = await uniswapV2PairAt.balanceOf(signer[0].address);
     console.log(`Reserve After Add Liquidity: ${await uniswapV2PairAt.getReserves()}`);
     await uniswapV2PairAt.connect(signer[0]).approve(uniswapV2Router02.target, liquidity);
-    await uniswapV2Router02.connect(signer[0]).removeLiquidity(tokenA.target,tokenB.target,liquidity,amountAMin,amountBMin,signer[0].address,deadline);
+    await uniswapV2Router02.connect(signer[0]).removeLiquidity(tokenA.target,tokenB.target,liquidity,1,1,signer[0].address,deadline);
     console.log(`Liquidity After Remove Liquidity Function : ${await uniswapV2PairAt.balanceOf(signer[0].address)}`);
     console.log(`Reserve After Remove Liquidity: ${await uniswapV2PairAt.getReserves()}`);
   });
@@ -148,7 +150,7 @@ describe('Uniswap Contract', async () => {
     console.log(`Reserve After addLiquidityETH: ${await uniswapV2PairAt.getReserves()}`);
 
     await uniswapV2PairAt.connect(signer[0]).approve(uniswapV2Router02.target, liquidity);
-    await uniswapV2Router02.connect(signer[0]).removeLiquidityETH(tokenA.target,liquidity,amountAMin,amountETHMin,signer[1].address,deadline);
+    await uniswapV2Router02.connect(signer[0]).removeLiquidityETH(tokenA.target,liquidity,1,1,signer[1].address,deadline);
     console.log(`Liquidity After removeLiquidityETH Function : ${await uniswapV2PairAt.balanceOf(signer[1].address)}`);
     console.log(`Reserve After removeLiquidityETH: ${await uniswapV2PairAt.getReserves()}`);
   });
