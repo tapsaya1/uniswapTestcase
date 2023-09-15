@@ -9,6 +9,7 @@ describe('Uniswap Contract', async () => {
   let uniswapV2Pair;
   let uniswapV2Factory;
   let uniswapV2Router02;
+  let taxableToken;
   let amountETHMin=ethers.parseEther("1");
   let amountAMin=ethers.parseEther("1");
   let amountBMin=ethers.parseEther("1");
@@ -17,7 +18,7 @@ describe('Uniswap Contract', async () => {
   let amountInMax = ethers.parseEther("100")
   const ETH_AMOUNT = ethers.parseEther('100');
   let TOKEN_A_AMOUNT = ethers.parseEther('100');
-  let TOKEN_B_AMOUNT = ethers.parseEther('200');
+  let TOKEN_B_AMOUNT = ethers.parseEther('100');
   // let TOKEN_A_AMOUNTA = ethers.parseEther('200');
   // let TOKEN_B_AMOUNTB = ethers.parseEther('100');
   const deadline = Math.floor(Date.now() / 1000) + 3600;
@@ -35,6 +36,14 @@ describe('Uniswap Contract', async () => {
     console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    ETH_AMOUNT : ${ETH_AMOUNT}`);
     // function addLiquidityETH(address token,uint amountTokenDesired,uint amountTokenMin,uint amountETHMin,address to,uint deadline)
     await uniswapV2Router02.connect(signer[0]).addLiquidityETH(tokenA.target,TOKEN_A_AMOUNT,amountETHMin,ETH_AMOUNT,signer[0].address,deadline,{ value: ETH_AMOUNT });
+  }
+
+  async function _addTaxableLiquidity(){
+    await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
+    await taxableToken.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
+    console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    TaxableAmount : ${TOKEN_B_AMOUNT}`);
+     // function addLiquidity(address tokenA,address tokenB, uint amountADesired,uint amountBDesired,uint amountAMin,uint amountBMin,address to,uint deadline)
+    await uniswapV2Router02.connect(signer[0]).addLiquidity(tokenA.target,taxableToken.target,TOKEN_A_AMOUNT,TOKEN_B_AMOUNT,amountAMin,amountBMin,signer[0].address,deadline);
   }
   beforeEach(async () => {
     signer = await ethers.getSigners();
@@ -55,6 +64,9 @@ describe('Uniswap Contract', async () => {
 
     UniswapV2Pair = await ethers.getContractFactory('UniswapV2Pair');
     uniswapV2Pair = await UniswapV2Pair.connect(signer[0]).deploy();
+
+    const TaxableToken = await ethers.getContractFactory("taxableToken");
+    taxableToken = await TaxableToken.connect(signer[0]).deploy();
 
     const GetInit = await ethers.getContractFactory('CalHash');
     getInit = await GetInit.deploy();
@@ -324,6 +336,32 @@ describe('Uniswap Contract', async () => {
       Initial Balance of Token A : ${iniBalToken}
       Final Balance of Token A  : ${fnlBalToken}
     `);
+    console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
+  });
+
+  it.only("swapExactTokensForTokensSupportingFeeOnTransferTokens function", async function () {
+
+    await _addTaxableLiquidity();
+    pair = await uniswapV2Factory.getPair(tokenA.target, taxableToken.target);
+    // console.log(`Pair Address Of TokenA/weth via Factory: ${pair}`);
+    let uniswapV2PairAt =await uniswapV2Pair.connect(signer[0]).attach(pair);
+    console.log(`Reserve Before swap: ${(await uniswapV2PairAt.getReserves())}`);
+    let iniBalT1 = await tokenA.balanceOf(signer[0].address);
+    let iniBalT2 = await taxableToken.balanceOf(signer[0].address);
+    await tokenA.connect(signer[0]).approve(uniswapV2Router02.target,TOKEN_A_AMOUNT);
+    // (uint amountOut, address[] calldata path, address to, uint deadline)
+    amountOutMin=ethers.parseEther("1");
+    await uniswapV2Router02.connect(signer[0]).swapExactTokensForTokensSupportingFeeOnTransferTokens(amountIn,amountOutMin,[tokenA.target,taxableToken.target],signer[0].address, deadline);
+    // function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline
+  // ) 
+  let fnlBalT1 = await tokenA.balanceOf(signer[0].address);
+  let fnlBalT2 = await taxableToken.balanceOf(signer[0].address);
+  console.log(`
+    Initial Balance of Token A : ${iniBalT1}
+    Initial Balance of TaxableToken : ${iniBalT2}
+    Final Balance of Token A  : ${fnlBalT1}
+    Final Balance of TaxableToken  : ${fnlBalT2}
+  `);
     console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
   });
 });
