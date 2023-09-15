@@ -28,14 +28,12 @@ describe('Uniswap Contract', async () => {
      // function addLiquidity(address tokenA,address tokenB, uint amountADesired,uint amountBDesired,uint amountAMin,uint amountBMin,address to,uint deadline)
     await uniswapV2Router02.connect(signer[0]).addLiquidity(tokenA.target,tokenB.target,TOKEN_A_AMOUNT,TOKEN_B_AMOUNT,amountAMin,amountBMin,signer[0].address,deadline);
   }
-  
   async function _addLiquidityETH(){
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    ETH_AMOUNT : ${ETH_AMOUNT}`);
     // function addLiquidityETH(address token,uint amountTokenDesired,uint amountTokenMin,uint amountETHMin,address to,uint deadline)
     await uniswapV2Router02.connect(signer[0]).addLiquidityETH(tokenA.target,TOKEN_A_AMOUNT,amountETHMin,ETH_AMOUNT,signer[0].address,deadline,{ value: ETH_AMOUNT });
   }
-
   async function _addTaxableLiquidity(){
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await taxableToken.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
@@ -48,7 +46,6 @@ describe('Uniswap Contract', async () => {
      // function addLiquidityETH(address token,uint amountTokenDesired,uint amountTokenMin,uint amountETHMin,address to,uint deadline)
     await uniswapV2Router02.connect(signer[0]).addLiquidityETH(taxableToken.target,TOKEN_B_AMOUNT,1,ETH_AMOUNT,signer[0].address,1764541741,{value:ETH_AMOUNT});
 };
-
   beforeEach(async () => {
     signer = await ethers.getSigners();
     const TokenA = await ethers.getContractFactory('TokenA');
@@ -76,7 +73,6 @@ describe('Uniswap Contract', async () => {
     getInit = await GetInit.deploy();
     initHash = await getInit.connect(signer[0]).getInitHash();
   });
-
   it('  *** Check The ethers Version & Contract address *** \n  ', async () => {
     const version = ethers.version;
     console.log(`Ethers Version : v${version}
@@ -144,7 +140,6 @@ describe('Uniswap Contract', async () => {
     console.log(`Liquidity After Remove Liquidity Function : ${await uniswapV2PairAt.balanceOf(signer[0].address)}`);
     console.log(`Reserve After Remove Liquidity: ${await uniswapV2PairAt.getReserves()}`);
   });
-
   it('  *** Check removeLiquidityETH ***  ', async () => {
     // console.log(`Init Hash : ${initHash}`);
     await _addLiquidityETH();
@@ -162,7 +157,6 @@ describe('Uniswap Contract', async () => {
     console.log(`Liquidity After removeLiquidityETH Function : ${await uniswapV2PairAt.balanceOf(signer[1].address)}`);
     console.log(`Reserve After removeLiquidityETH: ${await uniswapV2PairAt.getReserves()}`);
   });
-
   it("swapExactTokensForTokens function", async ()=> {                
     await _addLiquidity();
 
@@ -337,7 +331,6 @@ describe('Uniswap Contract', async () => {
     `);
     console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
   });
-
   it("swapExactTokensForTokensSupportingFeeOnTransferTokens function", async ()=> {
 
     await _addTaxableLiquidity();
@@ -401,8 +394,6 @@ describe('Uniswap Contract', async () => {
     console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
 
   });
-
-
   it('  *** Check removeLiquidityETHSupportingFeeOnTransferTokens ***  ', async () => {
     // console.log(`Init Hash : ${initHash}`);
     await _addTaxableLiquidityETH();
@@ -420,7 +411,6 @@ describe('Uniswap Contract', async () => {
     console.log(`Liquidity After removeLiquidityETH Function : ${await uniswapV2PairAt.balanceOf(signer[1].address)}`);
     console.log(`Reserve After removeLiquidityETH: ${await uniswapV2PairAt.getReserves()}`);
   });
-
   // removeLiquidityWithPermit()
   // removeLiquidityETHWithPermit()
   // removeLiquidityETHWithPermitSupportingFeeOnTransferTokens
