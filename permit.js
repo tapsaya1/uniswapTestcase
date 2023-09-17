@@ -6,6 +6,7 @@ describe("removeLiquiditywithPermit And removeLiquidityETHWithPermit", () => {
     await myToken.connect(addr1).approve(uniswapV2Router02.address,expandTo18Decimals(4000));
     await simpalToken.connect(addr1).approve(uniswapV2Router02.address,expandTo18Decimals(5000));
     await uniswapV2Router02.connect(addr1).addLiquidity(myToken.address,simpalToken.address,expandTo18Decimals(200),expandTo18Decimals(200),expandTo18Decimals(1),expandTo18Decimals(1),owner.address,deadLine);
+    
     let TokenPair = await _factory.getPair(myToken.address,simpalToken.address);
     let pairAttach = await uniswapV2Pair.attach(TokenPair);
 

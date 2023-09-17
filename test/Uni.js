@@ -414,7 +414,7 @@ describe('Uniswap Contract', async () => {
   // removeLiquidityWithPermit()
   // removeLiquidityETHWithPermit()
   // removeLiquidityETHWithPermitSupportingFeeOnTransferTokens
-  it.only("swapExactTokensForTokens function", async ()=> {                
+  it("swapExactTokensForTokens function", async ()=> {                
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await taxableToken.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
     console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    TOKEN_TAXABLE_AMOUNT : ${TOKEN_B_AMOUNT}`);
@@ -446,7 +446,7 @@ describe('Uniswap Contract', async () => {
     Final Balance of Token A   : ${fnlBalT2}
     `);
   });  
-  it.only("swapExactTokensForTokens function", async ()=> {                
+  it("swapExactTokensForTokens function", async ()=> {                
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await taxableToken.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
     console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    TOKEN_TAXABLE_AMOUNT : ${TOKEN_B_AMOUNT}`);
@@ -471,4 +471,78 @@ describe('Uniswap Contract', async () => {
     Final Balance of Token A   : ${fnlBalT2}
     `);
   });
+  it.only('  *** Check RemoveLiquidity ***  ', async () => {
+    // console.log(`Init Hash : ${initHash}`);
+    await _addLiquidity();
+
+    console.log(`Contract Address of Uniswap Pair Contract: ${uniswapV2Pair.target}`);
+    pair = await uniswapV2Factory.getPair(tokenA.target, tokenB.target);
+    console.log(`Pair Address Of TokenA/TokenB via Factory: ${pair}`);
+    let uniswapV2PairAt = await uniswapV2Pair.connect(signer[0]).attach(pair);
+    console.log(`Liquidity After Add Liquidity Function : ${await uniswapV2PairAt.balanceOf(signer[0].address)}`);
+    // let TokenPair = await _factory.getPair(myToken.address,simpalToken.address);
+    // let pairAttach = await uniswapV2Pair.attach(TokenPair);
+
+    // const uniswapName = await uniswapV2ERC20.name();
+    // let point = await pairAttach.getReserves();
+    // await point._reserve0;
+    // console.log("Reserve A:", point._reserve0);
+    // await point._reserve1;
+    // console.log("Reserve B:", point._reserve1);
+    let liquidity = await uniswapV2PairAt.balanceOf(signer[0].address);
+    console.log(`Reserve After Add Liquidity: ${await uniswapV2PairAt.getReserves()}`);
+    const signatureDigest = await signer[0]._signTypedData( 
+      {
+        name : await uniswapV2PairAt.name(),
+        version :"1",
+        chainId : "0",
+        verifyingContract: uniswapV2PairAt.target,
+
+      }, 
+      {   
+          Permit: [
+            {
+              name: 'owner',
+              type: 'address',
+            },
+            {
+              name: 'spender',
+              type: 'address',
+            },
+            {
+              name: 'value',
+              type: 'uint256',
+            },
+            {
+              name: 'nonce',
+              type: 'uint256',
+            },
+            {
+              name: 'deadline',
+              type: 'uint256',
+            },
+          ],
+        },
+        {
+          owner:signer[0].address,
+          spender: uniswapV2Router02.target,
+          value: liquidity,
+          nonce: await uniswapV2PairAt.nonces(signer[0].address),
+          deadline:deadline,
+      
+        });
+        const signatureSplit = await ethers.utils.splitSignature(signatureDigest);
+        console.log(signatureSplit ,"split value");
+        
+        // await uniswapV2Router02.connect(owner).removeLiquidityWithPermit(myToken.address,simpalToken.address,
+        // liquidity,expandTo18Decimals(1),expandTo18Decimals(1),owner.address,deadLine,false, 
+        // signatureSplit.v, signatureSplit.r,signatureSplit.s,{gasLimit:3000000})               
+      
+    await uniswapV2PairAt.connect(signer[0]).approve(uniswapV2Router02.target, liquidity);
+    await uniswapV2Router02.connect(signer[0]).removeLiquidityWithPermit(tokenA.target,tokenB.target,liquidity,amountAMin,amountBMin,signer[0].address,deadline,false, 
+      signatureSplit.v, signatureSplit.r,signatureSplit.s,{gasLimit:3000000}) 
+    console.log(`Liquidity After Remove Liquidity Function : ${await uniswapV2PairAt.balanceOf(signer[0].address)}`);
+    console.log(`Reserve After Remove Liquidity: ${await uniswapV2PairAt.getReserves()}`);
+  });
+  
 });
