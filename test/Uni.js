@@ -48,6 +48,7 @@ describe('Uniswap Contract', async () => {
 };
   beforeEach(async () => {
     signer = await ethers.getSigners();
+
     const TokenA = await ethers.getContractFactory('TokenA');
     tokenA = await TokenA.connect(signer[0]).deploy();
 
@@ -114,7 +115,8 @@ describe('Uniswap Contract', async () => {
   it('  *** Check AddLiquidityETH ***  ', async () => {
     // console.log(`Init Hash : ${initHash}`);
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
-    await uniswapV2Router02.connect(signer[0]).addLiquidityETH(tokenA.target,TOKEN_A_AMOUNT,1,ETH_AMOUNT,signer[0].address,deadline,{ value: ETH_AMOUNT });
+    // function addLiquidityETH(address token,uint amountTokenDesired,uint amountTokenMin,uint amountETHMin,address to,uint deadline
+    await uniswapV2Router02.connect(signer[0]).addLiquidityETH(tokenA.target,TOKEN_A_AMOUNT,1,amountETHMin,signer[0].address,deadline,{ value: ETH_AMOUNT });
 
     console.log(`Contract Address of Uniswap Pair Contract: ${uniswapV2Pair.target}`);
     pair = await uniswapV2Factory.getPair(tokenA.target, weth.target);
@@ -157,7 +159,7 @@ describe('Uniswap Contract', async () => {
     console.log(`Liquidity After removeLiquidityETH Function : ${await uniswapV2PairAt.balanceOf(signer[1].address)}`);
     console.log(`Reserve After removeLiquidityETH: ${await uniswapV2PairAt.getReserves()}`);
   });
-  it("swapExactTokensForTokens function", async ()=> {                
+  it("  *** swapExactTokensForTokens function  *** ", async ()=> {                
     await _addLiquidity();
 
     console.log(`Contract Address of Uniswap Pair Contract: ${uniswapV2Pair.target}`);
@@ -206,7 +208,7 @@ describe('Uniswap Contract', async () => {
     // Initial Balance of Token B : ${iniBalT2}
     // `);
   });
-  it("swapTokensForExactTokens", async ()=>{
+  it("  *** swapTokensForExactTokens  *** ", async ()=>{
     await _addLiquidity();
 
     // console.log(`Contract Address of Uniswap Pair Contract: ${uniswapV2Pair.target}`);
@@ -236,7 +238,7 @@ describe('Uniswap Contract', async () => {
     Final Balance of Token B  : ${fnlBalT2}
     `);
   })
-  it("swapExactETHForTokens",async ()=>{
+  it("  *** swapExactETHForTokens  *** ",async ()=>{
     await _addLiquidityETH();
 
     pair = await uniswapV2Factory.getPair(tokenA.target, weth.target);
@@ -273,7 +275,7 @@ describe('Uniswap Contract', async () => {
   //   `);
   //   console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
   // })
-  it("swapTokensForExactETH function", async ()=>{
+  it("  *** swapTokensForExactETH function  *** ", async ()=>{
     await _addLiquidityETH();
 
     pair = await uniswapV2Factory.getPair(tokenA.target, weth.target);
@@ -292,7 +294,7 @@ describe('Uniswap Contract', async () => {
     `);
     console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
   });
-  it("swapExactTokensForETH function", async function () {
+  it("  *** swapExactTokensForETH function  *** ", async function () {
     await _addLiquidityETH();
     
     pair = await uniswapV2Factory.getPair(tokenA.target, weth.target);
@@ -311,7 +313,7 @@ describe('Uniswap Contract', async () => {
     `);
     console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
   });
-  it("swapETHForExactTokens function", async ()=>{
+  it("  *** swapETHForExactTokens function  *** ", async ()=>{
     await _addLiquidityETH();
     
     pair = await uniswapV2Factory.getPair(tokenA.target, weth.target);
@@ -331,7 +333,7 @@ describe('Uniswap Contract', async () => {
     `);
     console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
   });
-  it("swapExactTokensForTokensSupportingFeeOnTransferTokens function", async ()=> {
+  it("  *** swapExactTokensForTokensSupportingFeeOnTransferTokens function  *** ", async ()=> {
 
     await _addTaxableLiquidity();
     pair = await uniswapV2Factory.getPair(tokenA.target, taxableToken.target);
@@ -356,7 +358,7 @@ describe('Uniswap Contract', async () => {
   `);
     console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
   });
-  it("swapExactETHForTokensSupportingFeeOnTransferTokens",async ()=>{
+  it("  *** swapExactETHForTokensSupportingFeeOnTransferTokens  *** ",async ()=>{
     await _addTaxableLiquidityETH();
 
     pair = await uniswapV2Factory.getPair(taxableToken.target, weth.target);
@@ -373,7 +375,7 @@ describe('Uniswap Contract', async () => {
     `);
     console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
   })
-  it("swapExactTokensForETHSupportingFeeOnTransferTokens function", async ()=> {
+  it("  *** swapExactTokensForETHSupportingFeeOnTransferTokens function  *** ", async ()=> {
     await _addTaxableLiquidityETH();
     
     pair = await uniswapV2Factory.getPair(taxableToken.target, weth.target);
@@ -414,7 +416,7 @@ describe('Uniswap Contract', async () => {
   // removeLiquidityWithPermit()
   // removeLiquidityETHWithPermit()
   // removeLiquidityETHWithPermitSupportingFeeOnTransferTokens
-  it("swapExactTokensForTokens function", async ()=> {                
+  it("  *** Not Working/ reverse token/taxable  swapExactTokensForTokens function  *** ", async ()=> {                
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await taxableToken.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
     console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    TOKEN_TAXABLE_AMOUNT : ${TOKEN_B_AMOUNT}`);
@@ -446,7 +448,7 @@ describe('Uniswap Contract', async () => {
     Final Balance of Token A   : ${fnlBalT2}
     `);
   });  
-  it("swapExactTokensForTokens function", async ()=> {                
+  it("  *** swapExactTokensForTokens function  *** ", async ()=> {                
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await taxableToken.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
     console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    TOKEN_TAXABLE_AMOUNT : ${TOKEN_B_AMOUNT}`);
@@ -471,7 +473,7 @@ describe('Uniswap Contract', async () => {
     Final Balance of Token A   : ${fnlBalT2}
     `);
   });
-  it.only('  *** Check RemoveLiquidity ***  ', async () => {
+  it('  *** Not/working Check RemoveLiquidityWithPermit ***  ', async () => {
     // console.log(`Init Hash : ${initHash}`);
     await _addLiquidity();
 
@@ -491,7 +493,8 @@ describe('Uniswap Contract', async () => {
     // console.log("Reserve B:", point._reserve1);
     let liquidity = await uniswapV2PairAt.balanceOf(signer[0].address);
     console.log(`Reserve After Add Liquidity: ${await uniswapV2PairAt.getReserves()}`);
-    const signatureDigest = await signer[0]._signTypedData( 
+    const signatureDigest = await 
+    signer[0]._signTypedData( 
       {
         name : await uniswapV2PairAt.name(),
         version :"1",
@@ -544,5 +547,4 @@ describe('Uniswap Contract', async () => {
     console.log(`Liquidity After Remove Liquidity Function : ${await uniswapV2PairAt.balanceOf(signer[0].address)}`);
     console.log(`Reserve After Remove Liquidity: ${await uniswapV2PairAt.getReserves()}`);
   });
-  
 });
