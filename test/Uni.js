@@ -448,7 +448,7 @@ describe('Uniswap Contract', async () => {
     Final Balance of Token A   : ${fnlBalT2}
     `);
   });  
-  it("  *** swapExactTokensForTokens function  *** ", async ()=> {                
+  it.only("  ***Uniswap K: Taxable : swapExactTokensForTokens function  *** ", async ()=> {                
     await tokenA.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_A_AMOUNT);
     await taxableToken.connect(signer[0]).approve(uniswapV2Router02.target, TOKEN_B_AMOUNT);
     console.log(`TOKEN_A_AMOUNT : ${TOKEN_A_AMOUNT} \n    TOKEN_TAXABLE_AMOUNT : ${TOKEN_B_AMOUNT}`);
@@ -462,7 +462,9 @@ describe('Uniswap Contract', async () => {
     await taxableToken.connect(signer[0]).approve(uniswapV2Router02.target,TOKEN_A_AMOUNT);
     let iniBalT1 = await taxableToken.balanceOf(signer[0].address);
     let iniBalT2 = await tokenA.balanceOf(signer[0].address);
-    await uniswapV2Router02.connect(signer[0]).swapExactTokensForTokens(amountIn,1,[taxableToken.target,tokenA.target],signer[0].address, deadline);
+    // await uniswapV2Router02.connect(signer[0]).swapExactTokensForTokens(amountIn,1,[taxableToken.target,tokenA.target],signer[0].address, deadline);
+   await expect (uniswapV2Router02.connect(signer[0]).swapExactTokensForTokens(amountIn,1,[taxableToken.target,tokenA.target],signer[0].address, deadline)).to.be.revertedWith('UniswapV2: K')
+
     console.log(`Reserve After swap: ${(await uniswapV2PairAt.getReserves())}`);
     let fnlBalT1 = await taxableToken.balanceOf(signer[0].address);
     let fnlBalT2 = await tokenA.balanceOf(signer[0].address);
@@ -472,6 +474,7 @@ describe('Uniswap Contract', async () => {
     Final Balance of Token Taxable   : ${fnlBalT1}
     Final Balance of Token A   : ${fnlBalT2}
     `);
+    
   });
   it('  *** Not/working Check RemoveLiquidityWithPermit ***  ', async () => {
     // console.log(`Init Hash : ${initHash}`);
